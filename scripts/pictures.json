@@ -1,0 +1,29 @@
+{
+	"pictures": [
+		{
+			"id": 1,
+			"description": "Green apple card",
+			"image": "images/appleGreen.svg"
+		},
+		{
+			"id": 2,
+			"description": "Red cherries card",
+			"image": "images/cherriesRed.svg"
+		},
+		{
+			"id": 3,
+			"description": "Orange peach card",
+			"image": "images/peachOrange.svg"
+		},
+		{
+			"id": 4,
+			"description": "Yellow pear card",
+			"image": "images/pearYellow.svg"
+		},
+		{
+			"id": 5,
+			"description": "Purple plum card",
+			"image": "images/plumPurple.svg"
+		}
+	]
+}
