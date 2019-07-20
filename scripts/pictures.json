@@ -1,6 +1,11 @@
 {
 	"pictures": [
 		{
+			"id": 0,
+			"description": "Back of card",
+			"image": "images/backOfCard.svg"
+		},
+		{
 			"id": 1,
 			"description": "Green apple card",
 			"image": "images/appleGreen.svg"
