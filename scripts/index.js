@@ -224,7 +224,9 @@
 					
 				// Show the gameboard:
 				$.KirasCardMatchMemoryGame.$gameBoardElement.show();
-			$.KirasCardMatchMemoryGame.$pageLoadingElement.hide();
+				
+				// Hide the loader:
+				$.KirasCardMatchMemoryGame.$pageLoadingElement.hide();
                 
                 return;
             }
@@ -376,9 +378,9 @@
                     // Display this message to the user:
                     $.KirasCardMatchMemoryGame.$messageContainerElement.html("Great! You found a match! Choose another face-down card to find another match.");
                     
-                    // TODO:
-                    // Update points display:
-                    
+					// Update the points display to user:
+					$.KirasCardMatchMemoryGame.$pointsContainerElement.html("Total points: " + $.KirasCardMatchMemoryGame.totalPointsScoredSoFar);
+					
                     // Update matches found display:
 					$.KirasCardMatchMemoryGame.$matchCountContainerElement.html("Total number of matches found: " + $.KirasCardMatchMemoryGame.numberOfMatchesFound);
             
@@ -641,4 +643,3 @@ var _prototypeProperties = function (child, staticProps, instanceProps) { if (st
     // then feed this into the game.
 
 }(jQuery));
-
