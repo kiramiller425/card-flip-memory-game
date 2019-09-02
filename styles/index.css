@@ -1,0 +1,56 @@
+@charset "utf-8";
+
+/**
+ * index.css
+ *
+ * Version: 1.0 
+ * Author: Kira Miller
+ * Notes:
+ *     This document contains the custom styles for this project.
+ *     BEM for naming conventions: http://getbem.com/naming/
+ */
+ 
+
+#gameBoardContainer {
+	background: #FFFFFF;
+	width: 100%;
+	text-align: center;
+}
+
+#gameBoard {
+	background: #0000dd;
+
+}
+
+#cardsContainer:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.gameCard img {
+	float: left;
+	border: 1px solid #aaaa00;
+	padding: 0;
+	margin: 0.1%;
+	width: 200px;
+	height: 200px;
+}
+
+@media screen and (min-width: 401px) and (max-width: 1350px) {
+	h1 {
+		font-size: 2rem;
+	}
+	
+	.gameCard img {
+		width: 120px;
+		height: 120px;
+	}
+}
+
+@media screen and (max-width: 400px) {
+	.gameCard img {
+		width: 50px;
+		height: 50px;
+	}
+}
