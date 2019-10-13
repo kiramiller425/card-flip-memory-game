@@ -10,31 +10,64 @@
  *     BEM for naming conventions: http://getbem.com/naming/
  */
  
+:root {
+	--card-border-thickness: 1px;
+	--card-full-size-width: 200px;
+	--card-margins: 2px;
+	--card-mobile-size-width: 50px;
+	--card-tablet-size-width: 120px;
+}
 
-#gameBoardContainer {
-	background: #FFFFFF;
-	width: 100%;
+#game-board {
 	text-align: center;
+	width: 100%;
 }
 
-#gameBoard {
-	background: #0000dd;
-
+.game-board__stats-dashboard {
+	margin: 0 auto;
+	text-align: center;
+	width: 1030px;
 }
 
-#cardsContainer:after {
+.game-board__title {
+	font-size: 3rem;
+}
+
+.game-board__points {
+	text-align: right;
+}
+
+.game-board__matches-found-count {
+	text-align: right;
+}
+
+.game-board__message-to-user {
+	font-size: 1.3rem;
+	font-weight: bold;
+	padding: 10px 0;
+}
+
+.game-board__cards {
+	margin: 0 auto;
+	text-align: center;
+	width: 1030px;
+}
+
+.game-board__cards:after {
+	clear: both;
 	content: "";
 	display: table;
-	clear: both;
 }
 
-.gameCard img {
+.game-board__single-card img {
+	border-color: #aaaa00;
+	border-style: solid;
+	border-width: var(--card-border-thickness);
 	float: left;
-	border: 1px solid #aaaa00;
+	margin: var(--card-margins);
 	padding: 0;
-	margin: 0.1%;
-	width: 200px;
-	height: 200px;
+	width: var(--card-full-size-width);
+	height: var(--card-full-size-width);
 }
 
 @media screen and (min-width: 401px) and (max-width: 1350px) {
@@ -42,15 +75,15 @@
 		font-size: 2rem;
 	}
 	
-	.gameCard img {
-		width: 120px;
-		height: 120px;
+	.game-board__single-card img {
+		width: var(--card-tablet-size-width);
+		height: var(--card-tablet-size-width);
 	}
 }
 
 @media screen and (max-width: 400px) {
-	.gameCard img {
-		width: 50px;
-		height: 50px;
+	.game-board__single-card img {
+		width: var(--card-mobile-size-width);
+		height: var(--card-mobile-size-width);
 	}
 }

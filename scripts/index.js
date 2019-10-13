@@ -24,53 +24,60 @@
          *
          * @param {number} numberOfMillisecondsToWait is the number of milliseconds to delay before returning from this method.
          */
-		waitFor: function(numberOfMillisecondsToWait) {
-			console.log("Delay method called. Waiting for " + numberOfMillisecondsToWait + "ms.");
-			var beginTime = Date.now();
-			var currentTime = beginTime;
-			
-			while((currentTime - beginTime) < numberOfMillisecondsToWait) {
-				// Update current time:
-				currentTime = Date.now();
-			}			
-			
-			console.log("Delay method complete.");
-		},
-		
+        waitFor: function(numberOfMillisecondsToWait) {
+            console.log("Delay method called. Waiting for " + numberOfMillisecondsToWait + "ms.");
+            var beginTime = Date.now();
+            var currentTime = beginTime;
+            
+            while((currentTime - beginTime) < numberOfMillisecondsToWait) {
+                // Update current time:
+                currentTime = Date.now();
+            }            
+            
+            console.log("Delay method complete.");
+        },
+        
         /**
          * This forces the passed in element to be redrawn. Credit: https://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
          *
          * @param {Object} jQueryElement is the jquery element to be redrawn.
          */
-		forceRedraw: function(jQueryElement) {
-			
-			if (!jQueryElement) { return; }
+        forceRedraw: function(jQueryElement) {
+            
+            if (!jQueryElement) { return; }
 
-			var n = document.createTextNode(' ');
-			//var disp = jQueryElement.style.display;  // don't worry about previous display style
+            var n = document.createTextNode(' ');
+            //var disp = jQueryElement.style.display;  // don't worry about previous display style
 
-			jQueryElement.append(n);//.appendChild(n);
-			jQueryElement.hide();//.style.display = 'none';
+            jQueryElement.append(n);//.appendChild(n);
+            jQueryElement.hide();//.style.display = 'none';
 
-			setTimeout(function(){
-				jQueryElement.show();//.style.display = disp;
-				n.parentNode.removeChild(n);
-			},20); // you can play with this timeout to make it as short as possible
-		},
-		
+            setTimeout(function(){
+                jQueryElement.show();//.style.display = disp;
+                n.parentNode.removeChild(n);
+            },20); // you can play with this timeout to make it as short as possible
+        },
+        
         /**
          * This sets up the game for the first time after the page loads.
          *
          * @param {string} gameBoardElementId is the id name of the element on the HTML page which this function will set up the game elements into.
          * @param {string[]} relativeUrisOfUniquePicturesArray is the array containing all unique card images. The first one is the back of each card.
          */
-        setupGame: function(gameBoardElementId, relativeUrisOfUniquePicturesArray) {
+        setupGame: function(gameBoardElementId, pageLoadingMessageContainerId, relativeUrisOfUniquePicturesArray) {
             
-			// Log that we are setting up the game:
+            // Log that we are setting up the game:
             console.log("Setting up the game.");
-               
-            // Add these variables to the game, and set up with defaults for now:
+			
+            // Add these variables to the game, and set them up with defaults for now:
             $.KirasCardMatchMemoryGame.backOfCardPictureUri = "";
+			
+            $.KirasCardMatchMemoryGame.cardBorderThickness = 1;
+            $.KirasCardMatchMemoryGame.cardMarginWidth = 2;
+            $.KirasCardMatchMemoryGame.cardWidthFullSize = 200;
+            $.KirasCardMatchMemoryGame.cardWidthTabletSize = 120;
+            $.KirasCardMatchMemoryGame.cardWidthMobileSize = 50;
+			
             $.KirasCardMatchMemoryGame.hasOneCardBeenClicked = false;
             $.KirasCardMatchMemoryGame.hasSetupError = true; // Leave it as true in case this function returns due to a setup error. This will change to false at the end of this function.
             $.KirasCardMatchMemoryGame.isGameOver = false;
@@ -93,18 +100,18 @@
             // These variables will hold jQuery elements eventually:
             $.KirasCardMatchMemoryGame.$cardsContainerElement;
             $.KirasCardMatchMemoryGame.$gameBoardElement;
-            $.KirasCardMatchMemoryGame.$matchCountContainerElement;
-            $.KirasCardMatchMemoryGame.$messageContainerElement;
-            $.KirasCardMatchMemoryGame.$pageLoadingElement = $("#pageLoadingContainer"); // TODO: don't hard code this here
+            $.KirasCardMatchMemoryGame.$matchesFoundCountContainerElement;
+            $.KirasCardMatchMemoryGame.$messageToUserContainerElement;
+            $.KirasCardMatchMemoryGame.$pageLoadingElement = $("#" + pageLoadingMessageContainerId);
             $.KirasCardMatchMemoryGame.$pointsContainerElement;
             $.KirasCardMatchMemoryGame.$statsDashboardElement;
             
             // First do some validation of the inputs:
             
             // If the gameBoardElementId is null or undefined:
-            if(gameBoardElementId === undefined || gameBoardElementId === null) {
+            if (gameBoardElementId === undefined || gameBoardElementId === null) {
             
-				// Log this error:
+                // Log this error:
                 console.error("The game board element id was " + gameBoardElementId + ". Cannot start game.");
                 
                 return;
@@ -114,34 +121,34 @@
             $.KirasCardMatchMemoryGame.$gameBoardElement = $("#" + gameBoardElementId);
 
             // If the element doesn't exist:
-            if($.KirasCardMatchMemoryGame.$gameBoardElement === undefined || $.KirasCardMatchMemoryGame.$gameBoardElement === null) {
+            if ($.KirasCardMatchMemoryGame.$gameBoardElement === undefined || $.KirasCardMatchMemoryGame.$gameBoardElement === null) {
                 
-				// Log this error:
+                // Log this error:
                 console.error("The game board element doesn't exist on the page. Cannot start game.");
                 
                 return;
             }
-			
-			// Hide the gameboard, and display the loading image for now while we set it up:
-			$.KirasCardMatchMemoryGame.$gameBoardElement.hide();
-			$.KirasCardMatchMemoryGame.$pageLoadingElement.show();
+            
+            // Hide the gameboard, and display the loading image for now while we set it up:
+            $.KirasCardMatchMemoryGame.$gameBoardElement.hide();
+            $.KirasCardMatchMemoryGame.$pageLoadingElement.show();
             
             // Add a reverse reference to the DOM object:
             $.KirasCardMatchMemoryGame.$gameBoardElement.data("KirasCardMatchMemoryGame", $.KirasCardMatchMemoryGame);
             
             // If the pictures array is null or undefined:
-            if(relativeUrisOfUniquePicturesArray === undefined || relativeUrisOfUniquePicturesArray === null) {
+            if (relativeUrisOfUniquePicturesArray === undefined || relativeUrisOfUniquePicturesArray === null) {
                 
-				// Log this error:
+                // Log this error:
                 console.error("The pictures array was " + relativeUrisOfUniquePicturesArray + ". Cannot start game.");
                 
                 return;
             }
             
             // If the number of pictures is less than 2, then we cannot have a game:
-            if(relativeUrisOfUniquePicturesArray.length < 2) {
+            if (relativeUrisOfUniquePicturesArray.length < 2) {
                 
-				// Log this error:
+                // Log this error:
                 console.error("There were too few pictures in the array. Cannot start game.");
                                 
                 return;
@@ -160,27 +167,33 @@
             $.KirasCardMatchMemoryGame.numberOfCards = $.KirasCardMatchMemoryGame.numberOfUniquePictures * 2;
 
             // Add the stats dashboard (with points, match count, and message containers) and cards container to the page:
-            $.KirasCardMatchMemoryGame.$gameBoardElement.html("<div id='statsDashboard'>"
-                +     "<div id='pointsContainer'></div>"
-                +     "<div id='matchCountContainer'></div>"
-                +     "<div id='messageContainer'></div>"
+            $.KirasCardMatchMemoryGame.$gameBoardElement.html("<div class='game-board__stats-dashboard'>"
+                +     "<div class='game-board__title'>Card Match</div>"
+                +     "<div class='game-board__points'></div>"
+                +     "<div class='game-board__matches-found-count'></div>"
+                +     "<div class='game-board__message-to-user'></div>"
                 + "</div>"
-                + "<div id='cardsContainer'></div>"
+                + "<div class='game-board__cards'></div>"
                 );
             
             // Store these jQuery objects for future reference:
-            $.KirasCardMatchMemoryGame.$statsDashboardElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find("#statsDashboard");
-            $.KirasCardMatchMemoryGame.$pointsContainerElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find("#pointsContainer");
-            $.KirasCardMatchMemoryGame.$matchCountContainerElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find("#matchCountContainer");
-            $.KirasCardMatchMemoryGame.$messageContainerElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find("#messageContainer");
-            $.KirasCardMatchMemoryGame.$cardsContainerElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find("#cardsContainer");
+            $.KirasCardMatchMemoryGame.$statsDashboardElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find(".game-board__stats-dashboard");
+            $.KirasCardMatchMemoryGame.$pointsContainerElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find(".game-board__points");
+            $.KirasCardMatchMemoryGame.$matchesFoundCountContainerElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find(".game-board__matches-found-count");
+            $.KirasCardMatchMemoryGame.$messageToUserContainerElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find(".game-board__message-to-user");
+            $.KirasCardMatchMemoryGame.$cardsContainerElement = $.KirasCardMatchMemoryGame.$gameBoardElement.find(".game-board__cards");
+
+            // Constrain the cards container to make the cards fit into as close a rectangle grid as possible:
+            window.addEventListener("resize", $.KirasCardMatchMemoryGame.recalculateAfterResize(), false);
 
             // For each card:
             var cardsHTML = "";
-            for(var i = 0; i < $.KirasCardMatchMemoryGame.numberOfCards; i++) {
+            for (var i = 0; i < $.KirasCardMatchMemoryGame.numberOfCards; i++) {
                 
-				// Set up the HTML for the card. (The first URI in the array is the back of the card):
-                cardsHTML += "<div id='cardId" + i + "' class='gameCard' onclick='$.KirasCardMatchMemoryGame.cardClicked("+ i + ")'><img src='" + relativeUrisOfUniquePicturesArray[0] + "' /></div>";
+                // Set up the HTML for the card. (The first URI in the array is the back of the card):
+                cardsHTML += "<div id='cardId" + i 
+					+ "' class='game-board__single-card' onclick='$.KirasCardMatchMemoryGame.cardClicked(" + i
+					+ ")'><img src='" + relativeUrisOfUniquePicturesArray[0] + "' /></div>";
             
                 // Set up the card's face value into the array. At first, this will be in order; first two cards match, next two cards match, etc. They will be shuffled by the reset function:
                 $.KirasCardMatchMemoryGame.allCardValues.push(relativeUrisOfUniquePicturesArray[Math.floor((i + 2)/2)]);
@@ -198,6 +211,83 @@
             // Reset (to shuffle cards and set up messages) to start the game:
             $.KirasCardMatchMemoryGame.resetGame();            
         },
+
+        /**
+         * This recalculates the width of the cards container upon a screen / window resize event to ensure the cards form an asthetically pleasing rectangular shape.
+         */
+        recalculateAfterResize: function() {
+			
+			// TODO: move most css for this game to this JS. Alternative is to use SASS since CSS doesn't do loops / conditionals. But for this project, I want to focus on jQuery.
+			// TODO: fix this. Currently it's stuck in a loop:
+			return;
+            
+            let cardsContainerWidth = 0;
+            let screenWidth = screen.width;
+            let totalCardWidth = 206;
+            
+			$.KirasCardMatchMemoryGame.cardWidthFullSize
+			
+            if (screen.width <= 400) {
+                // Then it's a tiny mobile size screen:
+                totalCardWidth = 206;
+                
+            } else if (401 <= screen.width && screen.width <= 1350) {
+                // Then it's a tablet size
+                totalCardWidth = 206;
+                
+            } else {
+                // Then it's wider than 1350px:
+                totalCardWidth = 206;
+            }
+			
+			// Start off considering the longest possible container with all the cards in a straight line:
+			cardsContainerWidth = totalCardWidth * $.KirasCardMatchMemoryGame.numberOfCards + 1;
+			
+			// As long as this container width is larger than the screen width:
+			while (cardsContainerWidth >= screenWidth) {
+				cardsContainerWidth = cardsContainerWidth / 2;
+				// cut it in half? or make it fit a rectangle as best as possible.
+				// maybe half at first, and if its still too big, cut that in half. If too small, ?
+			}
+			
+			$.KirasCardMatchMemoryGame.$cardsContainerElement.css("width", cardsContainerWidth);
+			
+            
+            ;
+            
+            // TODO
+            // sense the width of the screen
+            // calc the width of each card img + margin + border
+            // find the max width of cardscontainer possible to make as close a rectangle with the cards
+            
+            // examples:
+            
+            // screenWidth = 1351
+            // cardWidth = 206
+            // numCards = 2
+            // cardsContainerWidth = cardWidth*numCards + 1
+            
+            // screenWidth = 1351
+            // cardWidth = 206
+            // numCards = 4
+            // cardsContainerWidth = cardWidth*numCards + 1
+            
+            // screenWidth = 1351
+            // cardWidth = 206
+            // numCards = 6
+            // cardsContainerWidth = cardWidth*numCards + 1
+            
+            // screenWidth = 1351
+            // cardWidth = 206
+            // numCards = 8
+            // cardsContainerWidth = cardWidth*numCards / 2 + 1
+            
+            // screenWidth = 1351
+            // cardWidth = 206
+            // numCards = 10
+            // cardsContainerWidth = cardWidth*numCards / 2 + 1
+            
+        },
         
         /**
          * This resets the game; shuffles the cards, sets the points accumulated to 0, resets the messages, and re/starts the game.
@@ -209,24 +299,24 @@
             // Ignore any user input right now until we're done setting up the game:
             $.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = true; 
            
-			// Hide the gameboard for now while we set it up:
-			$.KirasCardMatchMemoryGame.$gameBoardElement.hide();
-			$.KirasCardMatchMemoryGame.$pageLoadingElement.show();
-			
+            // Hide the gameboard for now while we set it up:
+            $.KirasCardMatchMemoryGame.$gameBoardElement.hide();
+            $.KirasCardMatchMemoryGame.$pageLoadingElement.show();
+            
             // If there was a problem during setup:
             if($.KirasCardMatchMemoryGame.hasSetupError) {
                 
-				// Log the error and quit the game:
+                // Log the error and quit the game:
                 console.error("Cannot start game due to a setup error.");
                 
                 // Display an error to the user:
-                $.KirasCardMatchMemoryGame.$messageContainerElement.html("Sorry, something went wrong. Please go back and try again.");
-					
-				// Show the gameboard:
-				$.KirasCardMatchMemoryGame.$gameBoardElement.show();
-				
-				// Hide the loader:
-				$.KirasCardMatchMemoryGame.$pageLoadingElement.hide();
+                $.KirasCardMatchMemoryGame.$messageToUserContainerElement.html("Sorry, something went wrong. Please go back and try again.");
+                    
+                // Show the gameboard:
+                $.KirasCardMatchMemoryGame.$gameBoardElement.show();
+                
+                // Hide the loader:
+                $.KirasCardMatchMemoryGame.$pageLoadingElement.hide();
                 
                 return;
             }
@@ -247,7 +337,7 @@
             $.KirasCardMatchMemoryGame.numberOfMatchesFound = 0;
             
             // Reset the matches display to the user:
-            $.KirasCardMatchMemoryGame.$matchCountContainerElement.html("Total number of matches found: " + $.KirasCardMatchMemoryGame.numberOfMatchesFound);
+            $.KirasCardMatchMemoryGame.$matchesFoundCountContainerElement.html("Total number of matches found: " + $.KirasCardMatchMemoryGame.numberOfMatchesFound);
             
             // Set all cards to their face-down display:
             $.KirasCardMatchMemoryGame.$cardsContainerElement.find("img").attr("src", $.KirasCardMatchMemoryGame.allCardPictureUris[0]);
@@ -255,7 +345,7 @@
             // For each card:
             for(var i = 0; i < $.KirasCardMatchMemoryGame.numberOfCards; i++) {
            
-				// Randomly shuffle their face value with another card's:
+                // Randomly shuffle their face value with another card's:
                 var j = Math.floor(Math.random() * $.KirasCardMatchMemoryGame.numberOfCards);
                 
                 // Swap:
@@ -265,11 +355,11 @@
             }
             
             // Set the initial message:
-            $.KirasCardMatchMemoryGame.$messageContainerElement.html("Let's begin! Click on a card to turn it over.");
-            					
-			// Show the gameboard:
-			$.KirasCardMatchMemoryGame.$gameBoardElement.show();
-			$.KirasCardMatchMemoryGame.$pageLoadingElement.hide();
+            $.KirasCardMatchMemoryGame.$messageToUserContainerElement.html("Let's begin! Click on a card to turn it over.");
+                                
+            // Show the gameboard:
+            $.KirasCardMatchMemoryGame.$gameBoardElement.show();
+            $.KirasCardMatchMemoryGame.$pageLoadingElement.hide();
             
             // We're done resetting, so pay attention to user input now:
             $.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false; 
@@ -285,13 +375,13 @@
          */
         cardClicked: function(clickedCardId) {
             
-			// Log action:
+            // Log action:
             console.log("Card with Id " + clickedCardId + " was clicked.");
             
             // If the game had a setup error:            
             if($.KirasCardMatchMemoryGame.hasSetupError) {
                 
-				// Then ignore this click:
+                // Then ignore this click:
                 console.log("Ignoring click; game had a setup error.");
                 
                 return;
@@ -300,20 +390,20 @@
             // If the game isn't ready for user input (due to setup or transition, etc.):
             if($.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks) {
                 
-				// Then ignore this click:
+                // Then ignore this click:
                 console.log("Ignoring click; game isn't ready for user input yet.");
                 
                 return;
             }
             
             // Otherwise, set this to ignore subsequent clicks for now:
-			console.log("Set to ignore subsequent clicks.");
+            console.log("Set to ignore subsequent clicks.");
             $.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = true;
             
             // If the game is over:
             if($.KirasCardMatchMemoryGame.isGameOver) {
                 
-				// Then ignore this click:
+                // Then ignore this click:
                 console.log("Ignoring click; game is over.");
                 
                 return;
@@ -321,19 +411,19 @@
             
             // If the card that was clicked is already face-up:
             if($.KirasCardMatchMemoryGame.allIdsOfFaceUpCards.includes(clickedCardId)) {
-				
+                
                 // Then ignore this click:
                 console.log("Ignoring click; this card is already face up.");
-				
+                
                 // We're done, so pay attention to user input again:
-				console.log("Paying attention to clicks again now.");
-				$.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false;
-				
+                console.log("Paying attention to clicks again now.");
+                $.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false;
+                
                 return;
             }
             
-			console.log("Showing card's face.");
-			
+            console.log("Showing card's face.");
+            
             // Otherwise, mark this card as face up now:
             $.KirasCardMatchMemoryGame.allIdsOfFaceUpCards.push(clickedCardId);
             
@@ -343,26 +433,26 @@
             $("#cardId" + clickedCardId + " img").attr("src", thisCardsValue);
             
             // If this is the first card they've turned over in this match round:
-			if($.KirasCardMatchMemoryGame.previousCardsValue === "") {
-				
+            if($.KirasCardMatchMemoryGame.previousCardsValue === "") {
+                
                 // Make this the previous card for next time:
                 $.KirasCardMatchMemoryGame.previousCardsValue = thisCardsValue;
                 
                 // Update the message to the user:
-                $.KirasCardMatchMemoryGame.$messageContainerElement.html("Now pick a matching card.");
-				
-				// We're done, so pay attention to user input again:
-				console.log("Paying attention to clicks again now.");
-				$.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false;
-				
+                $.KirasCardMatchMemoryGame.$messageToUserContainerElement.html("Now pick a matching card.");
+                
+                // We're done, so pay attention to user input again:
+                console.log("Paying attention to clicks again now.");
+                $.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false;
+                
             } else {
-				
+                
                 // If this card's value is the same as the previously clicked card:
                 if(thisCardsValue === $.KirasCardMatchMemoryGame.previousCardsValue) {
-				
-					// Then it's a match:
-					console.log("Cards did match.");
-					
+                
+                    // Then it's a match:
+                    console.log("Cards did match.");
+                    
                     // Keep both cards face up and add reward to total points:
                     $.KirasCardMatchMemoryGame.totalPointsScoredSoFar += $.KirasCardMatchMemoryGame.pointsToBeAwardedAfterNextMatchFound;
                     
@@ -376,79 +466,79 @@
                     $.KirasCardMatchMemoryGame.numberOfMatchesFound++;
                     
                     // Display this message to the user:
-                    $.KirasCardMatchMemoryGame.$messageContainerElement.html("Great! You found a match! Choose another face-down card to find another match.");
+                    $.KirasCardMatchMemoryGame.$messageToUserContainerElement.html("Great! You found a match! Choose another face-down card to find another match.");
                     
-					// Update the points display to user:
-					$.KirasCardMatchMemoryGame.$pointsContainerElement.html("Total points: " + $.KirasCardMatchMemoryGame.totalPointsScoredSoFar);
-					
+                    // Update the points display to user:
+                    $.KirasCardMatchMemoryGame.$pointsContainerElement.html("Total points: " + $.KirasCardMatchMemoryGame.totalPointsScoredSoFar);
+                    
                     // Update matches found display:
-					$.KirasCardMatchMemoryGame.$matchCountContainerElement.html("Total number of matches found: " + $.KirasCardMatchMemoryGame.numberOfMatchesFound);
+                    $.KirasCardMatchMemoryGame.$matchesFoundCountContainerElement.html("Total number of matches found: " + $.KirasCardMatchMemoryGame.numberOfMatchesFound);
             
                     // If the user has found all possible matches:
                     if($.KirasCardMatchMemoryGame.numberOfMatchesFound >= $.KirasCardMatchMemoryGame.maxNumberOfMatchesPossible) {
             
-						// Then the game is over:
+                        // Then the game is over:
                         $.KirasCardMatchMemoryGame.isGameOver = true;
                         
                         // Display this message to the user:
-                        $.KirasCardMatchMemoryGame.$messageContainerElement.html("Congratulations! You found all the matches!");
+                        $.KirasCardMatchMemoryGame.$messageToUserContainerElement.html("Congratulations! You found all the matches!");
                     }
 
-					// We're done, so pay attention to user input again:
-					console.log("Paying attention to clicks again now.");
-					$.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false;
-					
+                    // We're done, so pay attention to user input again:
+                    console.log("Paying attention to clicks again now.");
+                    $.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false;
+                    
                 } else {
-					
-					// It's not a match:
-					console.log("Cards did not match.");
-					
+                    
+                    // It's not a match:
+                    console.log("Cards did not match.");
+                    
                     // So dock some points from the possible prize:
                     $.KirasCardMatchMemoryGame.pointsToBeAwardedAfterNextMatchFound -= $.KirasCardMatchMemoryGame.pointsToDockDuringMisMatch;
-					
+                    
                     // If it's less than 1:
                     if($.KirasCardMatchMemoryGame.pointsToBeAwardedAfterNextMatchFound < 1) {
                         
-						// Keep it at 1 so they get at least 1 point for finding a match:
+                        // Keep it at 1 so they get at least 1 point for finding a match:
                         $.KirasCardMatchMemoryGame.pointsToBeAwardedAfterNextMatchFound = 1;
                     }
                     
                     // Display this message to the user:
-                    $.KirasCardMatchMemoryGame.$messageContainerElement.html(":( Sorry, those cards do not match.");
+                    $.KirasCardMatchMemoryGame.$messageToUserContainerElement.html(":( Sorry, those cards do not match.");
                     
-					// Wait 3 seconds and then flip both cards back over:
-					setTimeout(function(){
-						
-						// Remove both cards from the face-up card tracker stack:
-						$.KirasCardMatchMemoryGame.allIdsOfFaceUpCards.pop();
-						var previousCardId = $.KirasCardMatchMemoryGame.allIdsOfFaceUpCards.pop();
-						
-						// Re-hide both cards:
-						$("#cardId" + clickedCardId + " img").attr("src", $.KirasCardMatchMemoryGame.allCardPictureUris[0]);
-						$("#cardId" + previousCardId + " img").attr("src", $.KirasCardMatchMemoryGame.allCardPictureUris[0]);
-						
-						// Reset previous card for next match:
-						$.KirasCardMatchMemoryGame.previousCardsValue = "";
-							
-						// Display this message to the user:
-						$.KirasCardMatchMemoryGame.$messageContainerElement.html(":( Sorry, those cards did not match. Pick another face-down card to try again.");
-									
-						// We're done, so pay attention to user input again:
-						console.log("Paying attention to clicks again now.");
-						$.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false;
-					
-					}, 3000);
+                    // Wait 3 seconds and then flip both cards back over:
+                    setTimeout(function(){
+                        
+                        // Remove both cards from the face-up card tracker stack:
+                        $.KirasCardMatchMemoryGame.allIdsOfFaceUpCards.pop();
+                        var previousCardId = $.KirasCardMatchMemoryGame.allIdsOfFaceUpCards.pop();
+                        
+                        // Re-hide both cards:
+                        $("#cardId" + clickedCardId + " img").attr("src", $.KirasCardMatchMemoryGame.allCardPictureUris[0]);
+                        $("#cardId" + previousCardId + " img").attr("src", $.KirasCardMatchMemoryGame.allCardPictureUris[0]);
+                        
+                        // Reset previous card for next match:
+                        $.KirasCardMatchMemoryGame.previousCardsValue = "";
+                            
+                        // Display this message to the user:
+                        $.KirasCardMatchMemoryGame.$messageToUserContainerElement.html(":( Sorry, those cards did not match. Pick another face-down card to try again.");
+                                    
+                        // We're done, so pay attention to user input again:
+                        console.log("Paying attention to clicks again now.");
+                        $.KirasCardMatchMemoryGame.shouldIgnoreAnyClicks = false;
+                    
+                    }, 3000);
                 }
             }                        
         }
-		
+        
     });
     
     // temporary array for testing:
     var relativeUrisOfUniquePicturesArray = [ "images/backOfCard.svg", "images/appleGreen.svg", "images/cherriesRed.svg", "images/peachOrange.svg", "images/pearYellow.svg", "images/plumPurple.svg" ];
     
     // Setup and start the game:
-    $.KirasCardMatchMemoryGame.setupGame("gameBoardContainer", relativeUrisOfUniquePicturesArray);
+    $.KirasCardMatchMemoryGame.setupGame("game-board", "loading-message-container", relativeUrisOfUniquePicturesArray);
     
     
     // TODO: read in and parse JSON, see method drafts below;
